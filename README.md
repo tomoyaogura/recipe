@@ -30,28 +30,27 @@ Plan for Recipe App
 
 ## Workflow:
 ### Shopping:
-1) Current shopping list + Top 5 items that maximize repertorie [Item X will unlock X recipes]
-2) Export Shopping list to trello to a unique board
-3) Shop organized by Location [Minimizes]
-4) After shopping, tap on buttons to indicate stocked
+1. Current shopping list + Top 5 items that maximize repertorie [Item X will unlock X recipes]
+2. Export Shopping list to trello to a unique board
+3. Shop organized by Location [Minimizes]
+4. After shopping, tap on buttons to indicate stocked
 
 ### Help Decide:
-1) List of recipes with given ingredients/ Sort by key words/ Time/ etc. Default filters exist [gochisou, etc.]
-2) Column by 主菜　副菜
-3) Randomizer
-4) "I need to use xxx" -> get rid of ingredients
+1. List of recipes with given ingredients/ Sort by key words/ Time/ etc. Default filters exist [gochisou, etc.]
+2. Column by 主菜　副菜
+3. Randomizer
+4. "I need to use xxx" -> get rid of ingredients
 
 ### Cooking: After selected recipe
-1) Built-in timer
-2) List by list instructions
-3) Overview ingredients view
-4) Multiple recipes in parallel?
+1. Built-in timer
+2. List by list instructions
+3. Overview ingredients view
+4. Multiple recipes in parallel?
 
 ### Adding new models:
-1) Creating Ingredients -> Backend import from CSV
-2) Creating new recipes -> Import script from cookpad with scrapy
+1. Creating Ingredients -> Backend import from CSV
+2. Creating new recipes -> Import script from cookpad with scrapy
 
 ### Option:
 Video watching/ streaming
-
 
