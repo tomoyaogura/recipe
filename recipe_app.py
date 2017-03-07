@@ -41,24 +41,22 @@ class ScrollButton(ToggleButton):
         session.commit()
 
 class TestScroll(ScrollView):
-    ing_type = StringProperty('')
-    grid = ObjectProperty()
+
     def __init__(self, ing_type, **kwargs):
         super(TestScroll, self).__init__(**kwargs)
-        self.ing_type = ing_type
-
-    def update(self):
-        all_ings = session.query(Ingredient).filter_by(type=self.ing_type).order_by(Ingredient.id)
-        label = Label(text=self.ing_type)
-        self.grid.add_widget(label)
+        layout = GridLayout(size_hint_y=None, cols=1, padding=10, spacing=10)
+        layout.bind(minimum_height=layout.setter('height'))
+        all_ings = session.query(Ingredient).filter_by(type=ing_type).order_by(Ingredient.id)
+        label = Label(text=ing_type)
+        layout.add_widget(label)
         for ing in all_ings:
             button = ScrollButton(text=ing.name.encode('utf-8'), state=button_map(ing.in_stock))
-            self.grid.add_widget(button)
+            layout.add_widget(button)
+        self.add_widget(layout)
 
 class IngredientScreen(Screen):
     ings_list = ObjectProperty()
-    def __init__(self, **kwargs):
-        super(IngredientScreen, self).__init__(**kwargs)
+    def update(self):
         with open('Ingredients.csv') as f:
             reader = csv.reader(f, delimiter=',')
             header = reader.next()
@@ -67,23 +65,26 @@ class IngredientScreen(Screen):
                 self.ings_list.add_widget(scroll)
 
 class MainScreen(Screen):
-
+    ing_screen = ObjectProperty()
+    rep_screen = ObjectProperty()
+    def update(self):
+        self.ing_screen.update()
+        self.rep_screen.update()
     pass
 
 class RadioButtonSelector(Widget):
     pass
 
 class RecipeScreen(Screen):
+    def update(self):
+        return
     pass
-# Create the screen manager
-#sm = ScreenManager()
-#sm.add_widget(MenuScreen(sm, name='Ingredients'))
-#sm.add_widget(SettingsScreen(sm, name='Recipe'))
-#sm.add_widget(ScreenFake(sm, name='Shopping'))
 
 class RecipeApp(App):
     def build(self):
-        return MainScreen()
+        ms = MainScreen()
+        ms.update()
+        return ms 
 
 if __name__ == '__main__':
     RecipeApp().run()

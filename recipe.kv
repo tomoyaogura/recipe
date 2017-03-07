@@ -1,18 +1,8 @@
 #:kivy 1.9.1
 # -*- coding: utf-8 -*-
 <TestScroll>:
-  #grid: grid
   size_hint: (1, 1)
   do_scroll_x: False
-  GridLayout:
-    id: grid
-    size_hint_y: None
-    cols: 1
-    padding: 10
-    spacing: 10
-    height: self.minimum_height
-    Button:
-      on_press:root.update()
 
 <ScrollButton>:
   size_hint_y: None
@@ -21,8 +11,8 @@
 
 
 <IngredientScreen>:
-  ings_list: ingsb_list
   name: 'Ingredients'
+  ings_list: ingsb_list
   BoxLayout:
     id: ingsb_list
     orientation: "horizontal"
@@ -30,6 +20,8 @@
     spacing: 10
 
 <MainScreen>:
+  ing_screen: ing_screen
+  rep_screen: rep_screen
   name: "ScreenManager"
   fullscreen: True
   BoxLayout:
@@ -44,7 +36,9 @@
     ScreenManager:
       id: sm
       IngredientScreen:
+        id: ing_screen
       RecipeScreen:
+        id: rep_screen
       Screen:
         name: "Shopping"
 
