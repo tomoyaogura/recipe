@@ -3,6 +3,7 @@ import csv
 
 from kivy.app import App
 from kivy.lang import Builder
+from kivy.factory import Factory
 
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.scrollview import ScrollView
@@ -41,29 +42,32 @@ class ScrollButton(ToggleButton):
 
 class TestScroll(ScrollView):
     ing_type = StringProperty('')
+    grid = ObjectProperty()
     def __init__(self, ing_type, **kwargs):
-        print self.clear_widgets()
         super(TestScroll, self).__init__(**kwargs)
-        #self.ing_type = ing_type
-        #all_ings = session.query(Ingredient).filter_by(type=self.ing_type).order_by(Ingredient.id)
-        #label = Label(text=self.ing_type)
-        #self.ids.grid.add_widget(label)
-        #for ing in all_ings:
-        #    button = ScrollButton(text=ing.name.encode('utf-8'), state=button_map(ing.in_stock))
-        #    self.ids.grid.add_widget(button)
+        self.ing_type = ing_type
+
+    def update(self):
+        all_ings = session.query(Ingredient).filter_by(type=self.ing_type).order_by(Ingredient.id)
+        label = Label(text=self.ing_type)
+        self.grid.add_widget(label)
+        for ing in all_ings:
+            button = ScrollButton(text=ing.name.encode('utf-8'), state=button_map(ing.in_stock))
+            self.grid.add_widget(button)
 
 class IngredientScreen(Screen):
+    ings_list = ObjectProperty()
     def __init__(self, **kwargs):
+        super(IngredientScreen, self).__init__(**kwargs)
         with open('Ingredients.csv') as f:
             reader = csv.reader(f, delimiter=',')
             header = reader.next()
             for ing_type in header:
-                scroll = ScrollView() #TestScroll(ing_type)
-                #scroll.add_widget(GridLayout())
-                self.ids.ing_list.add_widget(scroll)
-
+                scroll = TestScroll(ing_type)
+                self.ings_list.add_widget(scroll)
 
 class MainScreen(Screen):
+
     pass
 
 class RadioButtonSelector(Widget):

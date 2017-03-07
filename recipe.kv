@@ -1,6 +1,7 @@
 #:kivy 1.9.1
 # -*- coding: utf-8 -*-
-<ScrollView>
+<TestScroll>:
+  #grid: grid
   size_hint: (1, 1)
   do_scroll_x: False
   GridLayout:
@@ -10,17 +11,20 @@
     padding: 10
     spacing: 10
     height: self.minimum_height
+    Button:
+      on_press:root.update()
 
-<ScrollButton>
+<ScrollButton>:
   size_hint_y: None
   height: 30
   on_press: self.button_callback()
 
 
 <IngredientScreen>:
+  ings_list: ingsb_list
   name: 'Ingredients'
   BoxLayout:
-    id: ing_list
+    id: ingsb_list
     orientation: "horizontal"
     padding: (10,40,10,10)
     spacing: 10
@@ -45,7 +49,7 @@
         name: "Shopping"
 
 
-<RadioButtonSelector>
+<RadioButtonSelector>:
   size_hint_y: None
 
 <RecipeScreen>:
