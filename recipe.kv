@@ -1,6 +1,6 @@
 #:kivy 1.9.1
 # -*- coding: utf-8 -*-
-<TestScroll>:
+<TestScroll, FilterScroll>:
   size_hint: (1, 1)
   do_scroll_x: False
 
@@ -9,6 +9,9 @@
   height: 30
   on_press: self.button_callback()
 
+<CheckButton>:
+  size_hint_y: None
+  height: 30
 
 <IngredientScreen>:
   name: 'Ingredients'
@@ -42,38 +45,51 @@
       Screen:
         name: "Shopping"
 
-
 <RadioButtonSelector>:
   size_hint_y: None
 
 <RecipeScreen>:
   name: 'Recipe'
+  ings_list: ings_list
+  filter_type: filter_type
+  filter_ease: filter_ease
   Accordion:
     orientation: 'horizontal'
     AccordionItem:
-      title: 'Filters'
-      GridLayout:
-        cols: 2
-        padding: 30
-        spacing: 10
-        Label:
-          text: "Ease"
-          size_hint_y: .2
-          width: 100
-        Spinner:
-          text: "All"
-          values: ("All", "Easy", "Medium", "Hard")
-          size_hint_y: .2
-        Label:
-          text: "Type"
-          size_hint_y: .2
-          width: 100
-        Spinner:
-          text: "All"
-          values: ("Shoku", "Fuku", "Dessert")
-          size_hint_y: .2
-        RadioButtonSelector:
-          text: "Hello"
+      title: "Filter"
+      BoxLayout:
+        orientation: "vertical"
+        GridLayout:
+          size_hint_y: None
+          height: 100
+          cols: 2
+          padding: 30
+          spacing: 10
+          Label:
+            text: "Ease"
+            size: (100, 44)
+            size_hint: None, None
+          Spinner:
+            id: filter_ease
+            text: "All"
+            values: ("All", "Easy", "Medium", "Hard")
+            size: (100, 44)
+            size_hint: None, None
+          Label:
+            text: "Type"
+            size: (100, 44)
+            size_hint: None, None
+          Spinner:
+            id: filter_type
+            text: "All"
+            values: ("All", "主菜", "副菜", "デザート")
+            size: (100, 44)
+            size_hint: None, None
+        BoxLayout:
+          size_hint_y: .5
+          id: ings_list
+          orientation: "horizontal"
+          padding: (10,40,10,10)
+          spacing: 10
     AccordionItem:
-      title: 'Recipes'
-      
+      title: "Testing"

@@ -11,6 +11,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.checkbox import CheckBox
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 
@@ -40,9 +41,12 @@ class ScrollButton(ToggleButton):
         session.query(Ingredient).filter_by(name=self.text).update({"in_stock": button_map(self.state)})
         session.commit()
 
-class TestScroll(ScrollView):
+class CheckButton(CheckBox):
+    pass
 
-    def __init__(self, ing_type, **kwargs):
+
+class TestScroll(ScrollView):
+    def __init__(self, ing_type, is_button, **kwargs):
         super(TestScroll, self).__init__(**kwargs)
         layout = GridLayout(size_hint_y=None, cols=1, padding=10, spacing=10)
         layout.bind(minimum_height=layout.setter('height'))
@@ -50,7 +54,10 @@ class TestScroll(ScrollView):
         label = Label(text=ing_type)
         layout.add_widget(label)
         for ing in all_ings:
-            button = ScrollButton(text=ing.name.encode('utf-8'), state=button_map(ing.in_stock))
+            if is_button:
+                button = ScrollButton(text=ing.name.encode('utf-8'), state=button_map(ing.in_stock))
+            else:
+                button = CheckButton(text=ing.name.encode('utf-8'))
             layout.add_widget(button)
         self.add_widget(layout)
 
@@ -61,7 +68,7 @@ class IngredientScreen(Screen):
             reader = csv.reader(f, delimiter=',')
             header = reader.next()
             for ing_type in header:
-                scroll = TestScroll(ing_type)
+                scroll = TestScroll(ing_type, True)
                 self.ings_list.add_widget(scroll)
 
 class MainScreen(Screen):
@@ -76,9 +83,31 @@ class RadioButtonSelector(Widget):
     pass
 
 class RecipeScreen(Screen):
+    ings_list = ObjectProperty()
+    scrolls = []
     def update(self):
-        return
-    pass
+        with open('Ingredients.csv') as f:
+            reader = csv.reader(f, delimiter=',')
+            header = reader.next()
+            for ing_type in header:
+                scroll = FilterScroll(ing_type)
+                self.scrolls.append(scroll)
+                self.ings_list.add_widget(scroll)
+
+class FilterScroll(ScrollView):
+    buttons = []
+    def __init__(self, ing_type, **kwargs):
+        super(FilterScroll, self).__init__(**kwargs)
+        layout = GridLayout(size_hint_y=None, cols=2, padding=10, spacing=10)
+        layout.bind(minimum_height=layout.setter('height'))
+        all_ings = session.query(Ingredient).filter_by(type=ing_type).order_by(Ingredient.id)
+        for ing in all_ings:
+            label = Label(text=ing.name.encode('utf-8'))
+            button = CheckButton(name=ing.name.encode('utf-8'))
+            self.buttons.append(button)
+            layout.add_widget(label)
+            layout.add_widget(button)
+        self.add_widget(layout)
 
 class RecipeApp(App):
     def build(self):
