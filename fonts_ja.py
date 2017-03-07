@@ -37,7 +37,10 @@ elif _platform is 'ios':
 elif _platform is 'linux':
     add_path('/usr/share/fonts/truetype/droid')
     set_regular(DEFAULT_FONT,
-        'DroidSansJapanese.ttf'
+        'DroidSansFallbackFull.ttf'
+        #'DroidSans.ttf',
+        #'DroidSansJapanese.ttf',
+        #'DroidSansMono.ttf'
     )
 
 elif _platform is 'macosx':

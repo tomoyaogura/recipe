@@ -12,7 +12,7 @@ from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.label import Label
 
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, ObjectProperty
 
 import fonts_ja
 from database import session
@@ -33,57 +33,53 @@ def button_map(state):
         return state == "down"
 
 class ScrollButton(ToggleButton):
-    pass
-
-def button_callback(instance, value):
-    print("Button {} is now {}".format(instance.text, value))
-    session.query(Ingredient).filter_by(name=instance.text).update({"in_stock": button_map(value)})
-    session.commit()
+    def button_callback(self):
+        print("Button {} is now {}".format(self.text, self.state))
+        session.query(Ingredient).filter_by(name=self.text).update({"in_stock": button_map(self.state)})
+        session.commit()
 
 class TestScroll(ScrollView):
     ing_type = StringProperty('')
     def __init__(self, ing_type, **kwargs):
         super(TestScroll, self).__init__(**kwargs)
         self.ing_type = ing_type
-        all_ings = session.query(Ingredient).filter_by(type=ing_type).order_by(Ingredient.id)
-        grid = GridLayout(size_hint_y=None, cols=1, padding=10, spacing = 10)
-        grid.bind(minimum_height=grid.setter('height'))
-        label = Label(text=ing_type)
-        grid.add_widget(label)
+        all_ings = session.query(Ingredient).filter_by(type=self.ing_type).order_by(Ingredient.id)
+        label = Label(text=self.ing_type)
+        self.ids.grid.add_widget(label)
         for ing in all_ings:
             button = ScrollButton(text=ing.name.encode('utf-8'), state=button_map(ing.in_stock))
-            button.bind(state=button_callback)
-            grid.add_widget(button)
-        self.add_widget(grid)
+            self.ids.grid.add_widget(button)
 
-# Declare both screens
-class MenuScreen(Screen):
+# All 3 screens inheret from GeneralScreen which has the spinner
+class GeneralScreen(Screen):
+    def __init__(self, **kwargs):
+        super(GeneralScreen, self).__init__(**kwargs)
+
+class MenuScreen(GeneralScreen):
     def __init__(self, **kwargs):
         super(MenuScreen, self).__init__(**kwargs)
-        box = BoxLayout(orientation='horizontal', padding=(10,40,10,10), spacing=10)
         with open('Ingredients.csv') as f:
             reader = csv.reader(f, delimiter=',')
             header = reader.next()
             for ing_type in header:
-                scroll = TestScroll(ing_type, size_hint=(1,1), do_scroll_x=False)
-                box.add_widget(scroll)
-        self.add_widget(box)
+                scroll = TestScroll(ing_type)
+                self.ids.ing_list.add_widget(scroll)
 
-class SettingsScreen(Screen):
+class SettingsScreen(GeneralScreen):
     pass
 
-class ScreenFake(Screen):
+class ScreenFake(GeneralScreen):
     pass
 
 # Create the screen manager
-sm = ScreenManager()
-sm.add_widget(MenuScreen(name='menu'))
-sm.add_widget(SettingsScreen(name='settings'))
-sm.add_widget(ScreenFake(name='fake'))
+#sm = ScreenManager()
+#sm.add_widget(MenuScreen(sm, name='Ingredients'))
+#sm.add_widget(SettingsScreen(sm, name='Recipe'))
+#sm.add_widget(ScreenFake(sm, name='Shopping'))
 
 class RecipeApp(App):
     def build(self):
-        return sm
+        return GeneralScreen()
 
 if __name__ == '__main__':
     RecipeApp().run()

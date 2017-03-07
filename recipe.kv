@@ -1,52 +1,80 @@
 #:kivy 1.9.1
 # -*- coding: utf-8 -*-
+<TestScroll@ScrollView>
+  size_hint: (1, 1)
+  do_scroll_x: False
+  GridLayout:
+    id: grid
+    size_hint_y: None
+    cols: 1
+    padding: 10
+    spacing: 10
+    height: self.minimum_height
 
 <ScrollButton@ToggleButton>
   size_hint_y: None
   height: 30
+  on_press: self.button_callback()
 
-#<TestScroll@ScrollView>
-#  size_hint: (1, 1)  
-#  do_scroll_x: False
-#  GridLayout:
-#    size_hint_y: None
-#    height: self.minimum_height
-#    cols: 1
-#    padding: 10
-#    spacing: 10
-#    Label:
-#      text: "Hello"
-#    ScrollButton:
-#      text: "a"
-#    ScrollButton:
-#      text: "b"
-#    ScrollButton:
-#      text: "c"
-#    ScrollButton:
-#      text: "d"
-#    ScrollButton:
-#      text: "e"
-#    ScrollButton:
-#      text: "f"
-#    ScrollButton:
-#      text: "a"
-#    ScrollButton:
-#      text: "b"
-#    ScrollButton:
-#      text: "c"
-#    ScrollButton:
-#      text: "d"
-#    ScrollButton:
-#      text: "e"
-#    ScrollButton:
-#      text: "f"
-
-<MenuScreen>:
+<GeneralScreen>:
+  name: "ScreenManager"
+  fullscreen: True
   AnchorLayout:
     anchor_x: "right"
     anchor_y: "top"
     Spinner:
+      id: spinner
       text: "Ingredients"
-      values: "Ingredients", "Recipe", "Shopping"
+      values: ("Ingredients", "Recipe", "Shopping")
       size_hint: (None, None)
       size: (100, 44)
+      on_text: sm.current = Factory.get(self.text)()
+  ScreenManager:
+    id: sm
+    MenuScreen:
+      name: "MainMenu"
+    RecipeScreen:
+      name: "Recipe Screen"
+
+<MenuScreen>:
+  BoxLayout:
+    id: ing_list
+    orientation: "horizontal"
+    padding: (10,40,10,10)
+    spacing: 10
+    
+
+<RadioButtonSelector@Togglebutton>
+  size_hint_y: None
+
+<RecipeScreen>:
+  name: 'Recipe List'
+  Accordion:
+    orientation: 'horisontal'
+    AccordianItem:
+      title: 'Filters'
+      GridLayout:
+        cols: 2
+        padding: 30
+        spacing: 10
+        Label:
+          text: "Ease"
+          size_hint_y: .2
+          width: 100
+        Spinner:
+          text: "All"
+          values: ("All", "Easy", "Medium", "Hard")
+          size_hint_y: .2
+        Label:
+          text: "Type"
+          size_hint_y: .2
+          width: 100
+        Spinner:
+          text: "All"
+          values: ("Shoku", "Fuku", "Dessert")
+          size_hint_y: .2
+        RadioButtonSelector:
+          text: "Hello"
+    AccordianItem:
+      title: 'Recipes'
+      
