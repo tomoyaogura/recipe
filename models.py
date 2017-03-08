@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import enum
 import csv
+
 from database import Base, session, engine
 from sqlalchemy import Column, Integer, String, Binary, Text, PickleType, Boolean
 
@@ -108,7 +109,7 @@ def init_models():
             session.commit()
 
     if True:
-        print("Reading Recipe.txt for recipes") 
+        print("Reading Recipe.csv for recipes") 
         with open('Recipes2.csv') as f:
             reader = csv.reader(f, delimiter=',')
             for row in reader:
@@ -129,5 +130,10 @@ def init_models():
                 recipe = Recipe(name, difficulty, type, bin_val, "", instructions, optional_ingredients=opt_bin_val)
                 session.add(recipe)
             session.commit()
+
+    if True:
+        print("Reading Recipe.txt for Recipes") 
     print("Finished importing Ingredients and Recipes")
 
+if __name__=="__main__":
+    init_models()
