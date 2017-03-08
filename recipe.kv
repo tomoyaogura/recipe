@@ -93,3 +93,18 @@
           spacing: 10
     AccordionItem:
       title: "Testing"
+      #  Splitter:
+      #    sizeable_from: 'right'
+      #    min_size: 30
+      #    max_size: r1.width
+      #    Button:
+      #      text: 'Panel'
+      BoxLayout:
+        id: r1
+        Splitter:
+          size_hint_x: .3
+          sizable_from: 'right'
+          Label:
+            text: 'something1'
+        Label:
+          text: 'empty area'

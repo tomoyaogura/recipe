@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import csv
 from models import Recipe, Ingredient
 from database import session
 
@@ -6,7 +7,7 @@ MAPPER = {0: "Name",
           1: "Portion",
           2: "Difficulty",
           3: "Ingredients",
-          4: "Seasoning",
+          : "Seasoning",
           5: "Directions",
           6: "Notes"}
 
@@ -24,16 +25,24 @@ def parse_ingredient_dict(ing_dict):
     directions = ing_dict[5]
     notes = ing_dict[6]
     ingredient_bit = 0
+    all_ingredients = []
     for ingredient in ingredients:
         if ingredient[0][0] == "*":
             print("{} is optional... skipping".format(ingredient[0]))
             continue
         ing_model = session.query(Ingredient).filter_by(name=ingredient[0]).first()
+        all_ingredients.append(ingredient[0])
         if not ing_model:
             print("Could not find {}".format(ingredient[0]))
         else:
             ingredient_bit += ing_model.get_bit_mask()
+    with open('recipe_text.csv', 'a') as f:
+        writer = csv.writer(f, delimiter=',')
+        lists = [ing_dict[0], ing_dict[2], ing_dict[5]]
+        lists = lists + all_ingredients
+        writer.writerow(lists)
     rec = Recipe(name=ing_dict[0],
+                 type="FALSE",
                  difficulty=ing_dict[2],
                  ingredients=bin(ingredient_bit),
                  ingredients_text=ing_dict[3],
@@ -45,7 +54,7 @@ def parse_ingredient_dict(ing_dict):
     session.commit()
 
 def read_file():
-    with open("Recipe_Text") as text:
+    with open("Recipe.txt") as text:
         index = 0
         recipe = {0: "", 1: "", 2: "", 3: "", 4: "", 5: "", 6: ""}
         for line in text:

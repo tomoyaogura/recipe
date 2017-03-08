@@ -21,7 +21,6 @@ import fonts_ja
 from database import session
 from models import Ingredient, Recipe
 
-Builder.load_file('/home/tommy/Hackathon/recipe/recipe.kv')
 # Create both screens. Please note the root.manager.current: this is how
 # you can control the ScreenManager from kv. Each screen has by default a
 # property manager that gives you the instance of the ScreenManager used.

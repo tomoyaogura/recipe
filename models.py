@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import enum
 import csv
 from database import Base, session, engine
@@ -27,8 +28,9 @@ class Recipe(Base):
     portion = Column(Text())
     directions = Column(Text())
     notes = Column(Text())
+    type = Column(Text())
 
-    def __init__(self, name, difficulty, ingredients, ingredients_text, directions, seasoning="", portion="", notes="", optional_ingredients=bin(0)):
+    def __init__(self, name, difficulty, type, ingredients, ingredients_text, directions, seasoning="", portion="", notes="", optional_ingredients=bin(0)):
         self.name = name
         self.difficulty = difficulty
         self.ingredients = ingredients
@@ -38,6 +40,7 @@ class Recipe(Base):
         self.seasoning = seasoning
         self.portion = portion
         self.notes = notes
+        self.type = type
 
     def list_ingredients(self):
         binary = int(self.ingredients, base=2)
@@ -48,6 +51,17 @@ class Recipe(Base):
             if(2**index == (2**index & binary)):
                 ingredients.append(ing)
         return ingredients
+
+    def list_optional_ingredients(self):
+        binary = int(self.optional_ingredients, base=2)
+        ingredients = []
+        ings = session.query(Ingredient).all()
+        for ing in ings:
+            index = ing.bit_offset
+            if(2**index == (2**index & binary)):
+                ingredients.append(ing)
+        return ingredients
+
 
 class Ingredient(Base):
     __tablename__ = 'ingredients'
@@ -93,19 +107,26 @@ def init_models():
                         session.add(ing)
             session.commit()
 
-    if False:
+    if True:
         print("Reading Recipe.txt for recipes") 
-        with open('Recipes.csv') as f:
+        with open('Recipes2.csv') as f:
             reader = csv.reader(f, delimiter=',')
             for row in reader:
                 name = row[0]
-                difficulty = row[1]
-                instructions = row[2]
-                ingredients = row[3:]
+                print name
+                type = row[1]
+                difficulty = row[2]
+                instructions = row[3]
+                all_ingredients = row[4:]
+                optional_ingredients = [i.decode("utf-8")[1:] for i in all_ingredients if i and i.decode("utf-8")[0] == u"＊"]
+                ingredients = [i for i in all_ingredients if i and i.decode("utf-8")[0] != u"＊"]
                 ing_models = session.query(Ingredient).filter(Ingredient.name.in_(ingredients)).all()
+                opt_ing_models = session.query(Ingredient).filter(Ingredient.name.in_(optional_ingredients)).all()
                 bin_val = sum([2**i.bit_offset for i in ing_models])
                 bin_val = bin(bin_val)
-                recipe = Recipe(name, difficulty, bin_val, instructions, "")
+                opt_bin_val = sum([2**i.bit_offset for i in opt_ing_models])
+                opt_bin_val = bin(opt_bin_val)
+                recipe = Recipe(name, difficulty, type, bin_val, "", instructions, optional_ingredients=opt_bin_val)
                 session.add(recipe)
             session.commit()
     print("Finished importing Ingredients and Recipes")
