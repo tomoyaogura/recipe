@@ -75,7 +75,7 @@ def read_file():
                     recipe[i] = ""
             else:
                 if (index >= 0 and index <= 3):
-                    recipe[index] = line
+                    recipe[index] = line.strip('\n')
                 elif (index == 4):
                     recipe[4] += line
                 elif (index == 5):

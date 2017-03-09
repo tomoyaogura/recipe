@@ -1,6 +1,6 @@
 #:kivy 1.9.1
 # -*- coding: utf-8 -*-
-<TestScroll, FilterScroll>:
+<TestScroll, FilterScroll, RecipeScroll>:
   size_hint: (1, 1)
   do_scroll_x: False
 
@@ -47,6 +47,7 @@
 
 <RadioButtonSelector>:
   size_hint_y: None
+ 
 
 <RecipeScreen>:
   name: 'Recipe'
@@ -54,9 +55,11 @@
   filter_type: filter_type
   filter_ease: filter_ease
   Accordion:
+    name:"ACCORD"
     orientation: 'horizontal'
     AccordionItem:
       title: "Filter"
+      id: filter_menu
       BoxLayout:
         orientation: "vertical"
         GridLayout:
@@ -92,6 +95,7 @@
           padding: (10,40,10,10)
           spacing: 10
     AccordionItem:
+      name: "TT"
       title: "Testing"
       #  Splitter:
       #    sizeable_from: 'right'
@@ -100,11 +104,12 @@
       #    Button:
       #      text: 'Panel'
       BoxLayout:
+        name:"T"
         id: r1
         Splitter:
           size_hint_x: .3
           sizable_from: 'right'
-          Label:
-            text: 'something1'
+          RecipeScroll:
+            id: rscroll
         Label:
-          text: 'empty area'
+          text: root.selected_recipe

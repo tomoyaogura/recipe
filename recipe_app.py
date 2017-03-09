@@ -14,6 +14,7 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
+from kivy.uix.treeview import TreeView, TreeViewNode, TreeViewLabel
 
 from kivy.properties import StringProperty, ObjectProperty
 
@@ -24,6 +25,20 @@ from models import Ingredient, Recipe
 # Create both screens. Please note the root.manager.current: this is how
 # you can control the ScreenManager from kv. Each screen has by default a
 # property manager that gives you the instance of the ScreenManager used.
+
+"""
+MainMenu
+- RecipeMenu
+  - Accordian
+    - Filter
+    - RecipeSplitter
+      - ScrollView
+      - Menu
+- IngredientMenu
+- ShoppingMenu
+
+"""
+
 
 def button_map(state):
     if type(state) == bool:
@@ -42,7 +57,6 @@ class ScrollButton(ToggleButton):
 
 class CheckButton(CheckBox):
     pass
-
 
 class TestScroll(ScrollView):
     def __init__(self, ing_type, is_button, **kwargs):
@@ -70,20 +84,22 @@ class IngredientScreen(Screen):
                 scroll = TestScroll(ing_type, True)
                 self.ings_list.add_widget(scroll)
 
+class RadioButtonSelector(Widget):
+    pass
+
 class MainScreen(Screen):
     ing_screen = ObjectProperty()
     rep_screen = ObjectProperty()
+
     def update(self):
         self.ing_screen.update()
         self.rep_screen.update()
     pass
 
-class RadioButtonSelector(Widget):
-    pass
-
 class RecipeScreen(Screen):
     ings_list = ObjectProperty()
     scrolls = []
+    selected_recipe = StringProperty("")
     def update(self):
         with open('Ingredients.csv') as f:
             reader = csv.reader(f, delimiter=',')
@@ -92,6 +108,35 @@ class RecipeScreen(Screen):
                 scroll = FilterScroll(ing_type)
                 self.scrolls.append(scroll)
                 self.ings_list.add_widget(scroll)
+    def update_text(self, new_text):
+        self.selected_recipe = session.query(Recipe).filter_by(name=new_text).first().__str__()
+        return
+
+class RecipeTreeLabel(TreeViewLabel):
+
+    def clicked(self, obj, value):
+        # For some reason... root does not work. We need to traverse tree
+        self.parent.parent.parent.parent.parent.parent.parent.parent.parent.parent.update_text(self.text)
+
+class RecipeScroll(ScrollView):
+    tv = None
+    def __init__(self, **kwargs):
+        super(RecipeScroll, self).__init__(**kwargs)
+        self.tv = TreeView(size_hint_y=None)
+        self.update_tree()
+        self.add_widget(self.tv)
+        self.tv.bind(minimum_height=self.tv.setter('height'))
+
+    def update_tree(self):
+        types = set([r.type for r in session.query(Recipe).all()])
+        for t in types:
+            n1 = self.tv.add_node(TreeViewLabel(text=t))
+            recipes = session.query(Recipe).filter_by(type=t).all()
+            for r in recipes:
+                r_node = RecipeTreeLabel(text=r.name)
+                r_node.bind(is_selected=r_node.clicked)
+                self.tv.add_node(r_node, n1)
+
 
 class FilterScroll(ScrollView):
     buttons = []
