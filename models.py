@@ -43,6 +43,14 @@ class Recipe(Base):
         self.notes = notes
         self.type = type
 
+    def __str__(self):
+        string = self.name.encode('utf-8') + "\n"
+        string += self.portion.encode('utf-8') + "\n"
+        string += self.ingredients_text.encode('utf-8') + "\n\n"
+        string += self.directions.encode('utf-8') + "\n"
+        string += self.notes.encode('utf-8')
+        return string
+
     def list_ingredients(self):
         binary = int(self.ingredients, base=2)
         ingredients = []
@@ -96,7 +104,7 @@ def init_models():
 
     if True:
         print("Reading Ingredients.txt for ingredients")    
-        with open('Ingredients.csv') as f:
+        with open('recipes/Ingredients.csv') as f:
             ing_id = 0
             reader = csv.reader(f, delimiter=',')
             header = reader.next()
@@ -110,7 +118,7 @@ def init_models():
 
     if True:
         print("Reading Recipe.csv for recipes") 
-        with open('Recipes2.csv') as f:
+        with open('recipes/Recipes.csv') as f:
             reader = csv.reader(f, delimiter=',')
             for row in reader:
                 name = row[0]
@@ -127,7 +135,8 @@ def init_models():
                 bin_val = bin(bin_val)
                 opt_bin_val = sum([2**i.bit_offset for i in opt_ing_models])
                 opt_bin_val = bin(opt_bin_val)
-                recipe = Recipe(name, difficulty, type, bin_val, "", instructions, optional_ingredients=opt_bin_val)
+                ingredients_text = [i for i in all_ingredients if i]
+                recipe = Recipe(name, difficulty, type, bin_val, "\n".join(ingredients_text), instructions, optional_ingredients=opt_bin_val)
                 session.add(recipe)
             session.commit()
 

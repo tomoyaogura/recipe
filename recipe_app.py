@@ -14,16 +14,30 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
+from kivy.uix.treeview import TreeView, TreeViewNode, TreeViewLabel
 
 from kivy.properties import StringProperty, ObjectProperty
 
 import fonts_ja
 from database import session
 from models import Ingredient, Recipe
+from app import list_available_recipes
 
 # Create both screens. Please note the root.manager.current: this is how
 # you can control the ScreenManager from kv. Each screen has by default a
 # property manager that gives you the instance of the ScreenManager used.
+
+"""
+MainMenu
+- RecipeMenu
+  - Accordian
+    - Filter
+    - RecipeSplitter
+      - ScrollView
+      - Menu
+- IngredientMenu
+- ShoppingMenu
+"""
 
 def button_map(state):
     if type(state) == bool:
@@ -42,7 +56,6 @@ class ScrollButton(ToggleButton):
 
 class CheckButton(CheckBox):
     pass
-
 
 class TestScroll(ScrollView):
     def __init__(self, ing_type, is_button, **kwargs):
@@ -63,35 +76,77 @@ class TestScroll(ScrollView):
 class IngredientScreen(Screen):
     ings_list = ObjectProperty()
     def update(self):
-        with open('Ingredients.csv') as f:
+        with open('recipes/Ingredients.csv') as f:
             reader = csv.reader(f, delimiter=',')
             header = reader.next()
             for ing_type in header:
                 scroll = TestScroll(ing_type, True)
                 self.ings_list.add_widget(scroll)
 
+class RadioButtonSelector(Widget):
+    pass
+
 class MainScreen(Screen):
     ing_screen = ObjectProperty()
     rep_screen = ObjectProperty()
+
     def update(self):
         self.ing_screen.update()
         self.rep_screen.update()
-    pass
 
-class RadioButtonSelector(Widget):
-    pass
+    def update_text(self):
+        self.rep_screen.update_tree()
+        self.ids.sm.current = self.ids.spinner.text
 
 class RecipeScreen(Screen):
     ings_list = ObjectProperty()
     scrolls = []
+    selected_recipe = StringProperty("")
     def update(self):
-        with open('Ingredients.csv') as f:
+        with open('recipes/Ingredients.csv') as f:
             reader = csv.reader(f, delimiter=',')
             header = reader.next()
             for ing_type in header:
                 scroll = FilterScroll(ing_type)
                 self.scrolls.append(scroll)
                 self.ings_list.add_widget(scroll)
+
+    def update_text(self, new_text):
+        self.selected_recipe = session.query(Recipe).filter_by(name=new_text).first().__str__()
+        return
+
+    def update_tree(self):
+        self.ids.rscroll.update_tree()
+
+class RecipeTreeLabel(TreeViewLabel):
+
+    def clicked(self, obj, value):
+        # For some reason... root does not work. We need to traverse tree
+        self.parent.parent.parent.parent.parent.parent.parent.parent.parent.parent.update_text(self.text)
+
+class RecipeScroll(ScrollView):
+    tv = None
+    def __init__(self, **kwargs):
+        super(RecipeScroll, self).__init__(**kwargs)
+        self.update_tree()
+
+    def update_tree(self, **kwargs):
+        self.clear_widgets()
+        self.tv = TreeView(size_hint_y=None)
+        self.add_widget(self.tv)
+        self.tv.bind(minimum_height=self.tv.setter('height'))
+
+        types = set([r.type for r in session.query(Recipe).all()])
+        for t in types:
+            n1 = self.tv.add_node(TreeViewLabel(text=t))
+            recipes = session.query(Recipe).filter_by(type=t).all()
+            available_recipes = list_available_recipes()[0]
+            recipes = [r for r in recipes if r in available_recipes]
+            for r in recipes:
+                r_node = RecipeTreeLabel(text=r.name)
+                r_node.bind(is_selected=r_node.clicked)
+                self.tv.add_node(r_node, n1)
+
 
 class FilterScroll(ScrollView):
     buttons = []
@@ -107,6 +162,7 @@ class FilterScroll(ScrollView):
             layout.add_widget(label)
             layout.add_widget(button)
         self.add_widget(layout)
+
 
 class RecipeApp(App):
     def build(self):

@@ -41,7 +41,7 @@ def parse_ingredient_dict(ing_dict):
             print("Could not find {}".format(ingredient[0]))
         else:
             ingredient_bit += ing_model.get_bit_mask()
-    with open('recipe_text.csv', 'a') as f:
+    with open('recipes/recipe_text.csv', 'a') as f:
         writer = csv.writer(f, delimiter=',')
         lists = [ing_dict[0], ing_dict[2], ing_dict[3], ing_dict[6]]
         lists = lists + all_ingredients
@@ -60,7 +60,7 @@ def parse_ingredient_dict(ing_dict):
     session.commit()
 
 def read_file():
-    with open("Recipe.txt") as text:
+    with open("recipes/Recipe.txt") as text:
         index = 0
         recipe = {0: "", 1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: ""}
         for line in text:
@@ -75,7 +75,7 @@ def read_file():
                     recipe[i] = ""
             else:
                 if (index >= 0 and index <= 3):
-                    recipe[index] = line
+                    recipe[index] = line.strip('\n')
                 elif (index == 4):
                     recipe[4] += line
                 elif (index == 5):
