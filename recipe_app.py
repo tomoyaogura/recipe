@@ -21,6 +21,7 @@ from kivy.properties import StringProperty, ObjectProperty
 import fonts_ja
 from database import session
 from models import Ingredient, Recipe
+from app import list_available_recipes
 
 # Create both screens. Please note the root.manager.current: this is how
 # you can control the ScreenManager from kv. Each screen has by default a
@@ -36,9 +37,7 @@ MainMenu
       - Menu
 - IngredientMenu
 - ShoppingMenu
-
 """
-
 
 def button_map(state):
     if type(state) == bool:
@@ -94,7 +93,10 @@ class MainScreen(Screen):
     def update(self):
         self.ing_screen.update()
         self.rep_screen.update()
-    pass
+
+    def update_text(self):
+        self.rep_screen.update_tree()
+        self.ids.sm.current = self.ids.spinner.text
 
 class RecipeScreen(Screen):
     ings_list = ObjectProperty()
@@ -108,9 +110,13 @@ class RecipeScreen(Screen):
                 scroll = FilterScroll(ing_type)
                 self.scrolls.append(scroll)
                 self.ings_list.add_widget(scroll)
+
     def update_text(self, new_text):
         self.selected_recipe = session.query(Recipe).filter_by(name=new_text).first().__str__()
         return
+
+    def update_tree(self):
+        self.ids.rscroll.update_tree()
 
 class RecipeTreeLabel(TreeViewLabel):
 
@@ -122,16 +128,20 @@ class RecipeScroll(ScrollView):
     tv = None
     def __init__(self, **kwargs):
         super(RecipeScroll, self).__init__(**kwargs)
-        self.tv = TreeView(size_hint_y=None)
         self.update_tree()
+
+    def update_tree(self, **kwargs):
+        self.clear_widgets()
+        self.tv = TreeView(size_hint_y=None)
         self.add_widget(self.tv)
         self.tv.bind(minimum_height=self.tv.setter('height'))
 
-    def update_tree(self):
         types = set([r.type for r in session.query(Recipe).all()])
         for t in types:
             n1 = self.tv.add_node(TreeViewLabel(text=t))
             recipes = session.query(Recipe).filter_by(type=t).all()
+            available_recipes = list_available_recipes()[0]
+            recipes = [r for r in recipes if r in available_recipes]
             for r in recipes:
                 r_node = RecipeTreeLabel(text=r.name)
                 r_node.bind(is_selected=r_node.clicked)
@@ -152,6 +162,7 @@ class FilterScroll(ScrollView):
             layout.add_widget(label)
             layout.add_widget(button)
         self.add_widget(layout)
+
 
 class RecipeApp(App):
     def build(self):

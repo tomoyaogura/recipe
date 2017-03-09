@@ -35,7 +35,7 @@
       values: ("Ingredients", "Recipe", "Shopping")
       size_hint: (None, None)
       size: (100, 44)
-      on_text: sm.current = self.text
+      on_text: root.update_text()
     ScreenManager:
       id: sm
       IngredientScreen:
@@ -85,7 +85,7 @@
           Spinner:
             id: filter_type
             text: "All"
-            values: ("All", "主菜", "副菜", "デザート")
+            values: ("All", "主菜", "副菜", "昼")
             size: (100, 44)
             size_hint: None, None
         BoxLayout:
